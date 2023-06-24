@@ -27,7 +27,7 @@ async def check_subcategories_exists(subcategories: list[str],
 
     subcategories = await article_crud.get_subcategory_by_name(subcategories, session)
 
-    if subcategories is None:
+    if not len(subcategories):
         raise HTTPException(
             status_code=400,
             detail=f'Подкатегории: {subcategories_string} с таким именами не существуют!',

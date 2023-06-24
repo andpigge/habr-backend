@@ -87,6 +87,7 @@ class CRUDArticle(CRUDBase):
         article['title'] = article['title'].capitalize()
         db_obj = Article(**article)
 
+        print(subcategories)
         for subcategory in subcategories:
             db_obj.article_subcategory.append(subcategory)
 

@@ -5,7 +5,6 @@ from app.crud.article import article_crud
 from app.api.validators import check_category_exists, check_subcategories_exists, check_title_duplicate, check_article_exists, check_user_is_author_article
 from app.core.user import current_user
 from app.models.user import User
-from fastapi.encoders import jsonable_encoder
 
 from fastapi_pagination import Page, paginate
 
@@ -50,9 +49,10 @@ async def create_new_article(article: ArticleCreate,
 
     await check_title_duplicate(article.title, session)
 
-    subcategories = await check_subcategories_exists([x.lower() for x in article.subcategories], session)
-
     category = await check_category_exists(article.category.lower(), session)
+
+    # Если подкатегорий нету, создавать
+    subcategories = await check_subcategories_exists([x.lower() for x in article.subcategories], session)
 
     new_article = await article_crud.save_article_category(article, category, subcategories, user, session)
 

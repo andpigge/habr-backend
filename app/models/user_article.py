@@ -3,6 +3,6 @@
 # from app.core.db import Base
 
 
-# class SavedArticle(Base):
+# class userArticle(Base):
 #     user_id = Column(Integer, ForeignKey('user.id'))
 #     article_id = Column(Integer, ForeignKey('article.id'))
