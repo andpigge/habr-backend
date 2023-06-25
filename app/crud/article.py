@@ -1,4 +1,4 @@
-from app.models import Article, Category, Subcategory
+from app.models import Article, Category, Subcategory, article_subcategory
 from app.crud.base import CRUDBase
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -47,14 +47,26 @@ class CRUDArticle(CRUDBase):
 
         return article.scalars().first()
 
-    async def get_all_articles(self, session: AsyncSessionLocal):
-        db_objs = await session.execute(select(self.model).options(
+    async def get_all_articles(self, article_filter, session: AsyncSessionLocal):
+        # query = article_filter.filter(select(self.model).options(
+        #     subqueryload(self.model.article_subcategory),
+        #     subqueryload(self.model.category),
+        #     subqueryload(self.model.author),
+        #     subqueryload(self.model.tags)
+        # ))
+        # query = select(Article).join(Category).join(Subcategory)
+
+        query = select(Article).join(Article.article_subcategory).join(Article.category)
+        query = article_filter.filter(query)
+
+        result = await session.execute(query.options(
             subqueryload(self.model.article_subcategory),
             subqueryload(self.model.category),
             subqueryload(self.model.author),
             subqueryload(self.model.tags)
         ))
-        db_objs = db_objs.scalars().all()
+
+        db_objs = result.scalars().all()
 
         new_arr = []
         for db_obj in db_objs:
@@ -65,7 +77,7 @@ class CRUDArticle(CRUDBase):
 
             new_arr.append(db_obj)
 
-        return new_arr
+        return db_objs
 
     async def get_category_by_name(self, category, session):
         category = await session.execute(select(Category).where(Category.name == category))

@@ -4,7 +4,10 @@ from app.schemas.article import ArticleCreate, ArticleDB, ArticleUpdate, Article
 from app.crud.article import article_crud
 from app.api.validators import check_category_exists, check_subcategories_exists, check_title_duplicate, check_article_exists, check_user_is_author_article
 from app.core.user import current_user
-from app.models.user import User
+from app.models import User, Article, Category, Subcategory
+from sqlalchemy import select
+from app.api.filters import ArticleFilter
+from fastapi_filter import FilterDepends
 
 from fastapi_pagination import Page, paginate
 
@@ -21,12 +24,18 @@ session: AsyncSession = Depends(get_async_session)
 # "pages": 1
 # [ArticleAllDB]
 @router.get('/',
-            response_model=Page[ArticleDB],
+            # response_model=Page[ArticleDB],
             summary='Получить все статьи')
-async def get_all_article(session=session):
-    article = await article_crud.get_all_articles(session)
+async def get_all_article(article_filter: ArticleFilter = FilterDepends(ArticleFilter), session=session):
+    article = await article_crud.get_all_articles(article_filter, session)
 
-    return paginate(article)
+    # query = select(Article).join(Category).join(Subcategory)
+    # query = article_filter.filter(query)
+    # result = await session.execute(query)
+
+    # return result.scalars().all()
+
+    return article
 
 
 @router.get('/{article_id}',

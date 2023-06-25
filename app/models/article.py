@@ -23,3 +23,4 @@ class Article(Base):
 
     class Config:
         validate_assignment = True
+# Mapped[User]
